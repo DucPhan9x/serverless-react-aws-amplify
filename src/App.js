@@ -3,6 +3,7 @@ import { withAuthenticator } from "aws-amplify-react";
 import { API, graphqlOperation } from "aws-amplify";
 import { createNote, deleteNote, updateNote } from "./graphql/mutations";
 import { listNotes } from "./graphql/queries";
+// import { onCreateNote } from "./graphql/subscriptions";
 
 function App() {
   const [noteId, setNoteId] = useState("");
@@ -14,14 +15,28 @@ function App() {
   }
 
   useEffect(() => {
-    setLoading(true);
-    async function getListNotes() {
-      const result = await API.graphql(graphqlOperation(listNotes));
-      setLoading(false);
-      setNotes(result.data.listNotes.items);
-    }
-    getListNotes();
+    getNotes();
+    // const createNoteListener = API.graphql(
+    //   graphqlOperation(onCreateNote)
+    // ).subscribe({
+    //   next: (noteData) => {
+    //     const newNote = noteData.value.data.onCreateNote;
+    //     const prevNotes = notes.filter((note) => note.id !== newNote.id);
+    //     const updatedNotes = [...prevNotes, newNote];
+    //     setNotes(updatedNotes);
+    //   },
+    // });
+    // return () => {
+    //   createNoteListener.unsubscribe();
+    // };
   }, []);
+
+  async function getNotes() {
+    setLoading(true);
+    const result = await API.graphql(graphqlOperation(listNotes));
+    setNotes(result.data.listNotes.items);
+    setLoading(false);
+  }
 
   function hasExistingNote() {
     if (noteId) {
